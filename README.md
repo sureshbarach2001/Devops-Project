@@ -1,9 +1,4 @@
 # Mern-Ecommerce
-# Docker compose up command
-```bash
-docker-compose up
-```
-Goto http://localhost:3000/
 
 ![image](https://github.com/user-attachments/assets/1869a8a0-434d-4c1e-88e9-6529a9438658)
 
