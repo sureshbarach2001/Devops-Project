@@ -3,38 +3,48 @@
 # With Compose, you use a YAML file to configure your application’s services.
 # Then, with a single command, you create and start all the services from your configuration.
 # Here is an example of a Docker Compose file for the Dockerfile above:
-version: '3'
-
+#version: '3'
 services:
-  Backend:
-    build: .  # Build the Backend service from the Dockerfile in the current directory
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
-      - "5000:5000"  # Bind the container and the host machine to the exposed port 5000
-    volumes:
-      - .:/code  # Mount the current directory as a volume in the container
+      - '8000:8000'
+    environment:
+      - NODE_ENV=production
+      - MONGO_URL=mongodb://mongodb:27017/mydatabase  # MongoDB connection string
     depends_on:
-      - redis  # Specify that the Backend service depends on the redis service
+      - socket
+    networks:
+      - my-network
 
-  Frontend:
-    image: "redis:alpine"  # Use the latest Redis image from the Docker Hub
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "6379:6379"  # Bind the container and the host machine to the exposed port 6379
-    volumes:
-      redis-data:
-        driver: local  # Use the local driver for the volume
-        driver_opts:
-          type: none  # The volume is not managed by the Docker daemon
-          device: /my/own/redis-data  # Path on the host machine where the volume is mounted
-          o: bind  # Mount the volume as a bind mount
-  
-  Socket:
-    build: .  # Build the Socket service from the Dockerfile in the current directory
-    ports:
-      - "6000:6000"  # Bind the container and the host machine to the exposed port 6000
-    volumes:
-      - .:/code  # Mount the current directory as a volume in the container
+      - '3000:3000'
     depends_on:
-      - redis  # Specify that the Socket service depends on the redis service
+      - backend
+    networks:
+      - my-network
 
-# The Docker Compose file above defines thre services: Backend, Frontend, and Socket.
-# The web service uses an image that’s built from the Dockerfile in the current directory.
+  socket:
+    build:
+      context: ./socket
+      dockerfile: Dockerfile
+    ports:
+      - '4000:4000'
+    environment:
+      - NODE_ENV=production
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
