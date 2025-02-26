@@ -29,7 +29,7 @@ jobs:
           node-version: '18'
 
       - name: Wait for MongoDB to start
-        run: sleep 10 
+        run: sleep 10
 
       - name: Install backend dependencies
         run: |
@@ -98,6 +98,7 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: sainsuresh/frontend:latest
+          no-cache: true
 
       - name: Build and push socket
         uses: docker/build-push-action@v5
