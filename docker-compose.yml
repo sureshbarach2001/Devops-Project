@@ -13,9 +13,10 @@ services:
       - '8000:8000'
     environment:
       - NODE_ENV=production
-      - MONGO_URL=mongodb://mongodb:27017/mydatabase  # MongoDB connection string
+      - MONGO_URL=mongodb://mongodb:27017/mydatabase
     depends_on:
       - socket
+      - mongodb
     networks:
       - my-network
 
@@ -41,10 +42,34 @@ services:
     networks:
       - my-network
 
+  mongodb:
+    build:
+      context: ./mongodb
+      dockerfile: Dockerfile
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - my-network
+  utils:
+    build:
+      context: ./utils
+      dockerfile: Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./scripts:/scripts
+      - ./docker-compose.yml:/docker-compose.yml
+    working_dir: /scripts
+    command: tail -f /dev/null
+    environment:
+      - COMPOSE_PROJECT_NAME=e-commerce  # Set project name explicitly
+    networks:
+      - my-network
+
 networks:
   my-network:
     driver: bridge
 
 volumes:
   mongo-data:
-    driver: local

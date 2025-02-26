@@ -8,4 +8,5 @@ RUN npm install react@17 react-dom@17
 
 COPY . .
 EXPOSE 3000
+RUN npm test
 CMD ["npm", "start"]
