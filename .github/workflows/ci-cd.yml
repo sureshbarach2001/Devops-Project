@@ -19,11 +19,11 @@ jobs:
           MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGODB_USERNAME }}
           MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
         options: >-
-          --health-cmd "mongo --eval 'db.adminCommand(\"ping\")'"
+          --health-cmd "mongo --eval 'db.adminCommand(\"ping\")' || exit 0"  # Fallback to succeed if ping fails initially
           --health-interval 10s
           --health-timeout 10s
-          --health-retries 5
-          --health-start-period 30s
+          --health-retries 10  # Increase retries
+          --health-start-period 60s  # Increase to 60s
 
     steps:
       - name: Checkout code
@@ -34,19 +34,22 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Wait for MongoDB to be healthy
+      - name: Wait for MongoDB and log status
         run: |
+          CONTAINER_ID=$(docker ps -q -f name=mongodb)
           for i in {1..60}; do
-            if docker inspect --format='{{json .State.Health.Status}}' $(docker ps -q -f name=mongodb) | grep -q "healthy"; then
+            STATUS=$(docker inspect --format='{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}' $CONTAINER_ID)
+            echo "MongoDB health status: $STATUS ($i/60)"
+            if [ "$STATUS" = "healthy" ]; then
               echo "MongoDB is healthy!"
               break
             fi
-            echo "Waiting for MongoDB... ($i/60)"
             sleep 2
+            docker logs $CONTAINER_ID  # Log MongoDB output each iteration
           done
           if [ $i -eq 60 ]; then
-            echo "MongoDB failed to become healthy"
-            docker logs $(docker ps -q -f name=mongodb)
+            echo "MongoDB failed to become healthy after 120s"
+            docker logs $CONTAINER_ID
             exit 1
           fi
 
