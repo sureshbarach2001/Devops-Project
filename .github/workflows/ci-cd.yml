@@ -1,0 +1,125 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [suresh]
+  pull_request:
+    branches: [suresh]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+          MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Wait for MongoDB to start
+        run: sleep 10
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm install
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm test
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install --legacy-peer-deps
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test
+
+      - name: Install socket dependencies
+        run: |
+          cd socket
+          npm install
+
+      - name: Run socket tests
+        run: |
+          cd socket
+          npx jest --detectOpenHandles --forceExit
+
+      - name: Install utils dependencies
+        run: |
+          cd utils
+          if [ -f "package.json" ]; then npm install; else echo "No package.json in utils"; fi
+
+  build-and-push-docker:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: sainsuresh/backend:latest
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: sainsuresh/frontend:latest
+          no-cache: true
+
+      - name: Build and push socket
+        uses: docker/build-push-action@v5
+        with:
+          context: ./socket
+          file: ./socket/Dockerfile
+          push: true
+          tags: sainsuresh/socket:latest
+
+      - name: Build and push utils
+        uses: docker/build-push-action@v5
+        with:
+          context: ./utils
+          file: ./utils/Dockerfile
+          push: true
+          tags: sainsuresh/utils:latest
+
+      - name: Build and push mongodb (optional)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./mongodb
+          file: ./mongodb/Dockerfile
+          push: true
+          tags: sainsuresh/mongodb:latest
