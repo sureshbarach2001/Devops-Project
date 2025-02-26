@@ -28,6 +28,9 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Wait for MongoDB to start
+        run: sleep 10  # Wait 10s to ensure MongoDB is ready
+
       - name: Install backend dependencies
         run: |
           cd backend
@@ -41,7 +44,7 @@ jobs:
       - name: Install frontend dependencies
         run: |
           cd frontend
-          npm install
+          npm install --legacy-peer-deps  # Bypass React 18 vs @material-ui/core conflict
 
       - name: Run frontend tests
         run: |
