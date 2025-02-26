@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [suresh]
+    branches: [main]
   pull_request:
-    branches: [suresh]
+    branches: [main]
 
 jobs:
   test:
