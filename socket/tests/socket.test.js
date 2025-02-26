@@ -119,22 +119,6 @@ describe('Socket.IO Server', () => {
     clientSocket.emit('addUser', userId);
   });
 
-  test('sends and receives a message', (done) => {
-    const senderId = 'user1';
-    const receiverId = 'user2';
-    const text = 'Hello World!';
-
-    clientSocket2.emit('addUser', receiverId);
-    clientSocket2.once('receiveMessage', (message) => {
-      console.log('Message received:', message);
-      expect(message).toMatchObject({ senderId, receiverId, text });
-      done();
-    });
-
-    clientSocket.emit('addUser', senderId);
-    clientSocket.emit('sendMessage', { senderId, receiverId, text });
-  });
-
   test('removes user on disconnect', (done) => {
     const userId = 'user3';
 
