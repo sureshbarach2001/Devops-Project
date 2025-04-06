@@ -9,6 +9,11 @@ frontend:
       cpu: "0.5"
       memory: "512Mi"
 backend:
+  version: v1
+backendV2:
+  version: v2
+  image: sainsuresh/backend:latest 
+  port: 8000
   resources:
     limits:
       cpu: "1"
