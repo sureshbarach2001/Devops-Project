@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socket
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: socket
+  template:
+    metadata:
+      labels:
+        app: socket
+    spec:
+      containers:
+      - name: socket
+        image: sainsuresh/socket:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: SOCKET_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: SOCKET_PORT
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.2"
+            memory: "256Mi"
+        livenessProbe:
+          tcpSocket:
+            port: 4000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 4000
+          initialDelaySeconds: 5
+          periodSeconds: 5
