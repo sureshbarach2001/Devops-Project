@@ -1,0 +1,36 @@
+namespace: dev
+replicas: 1
+frontend:
+  image: sainsuresh/frontend:latest
+  port: 3000
+  resources:
+    limits:
+      cpu: "0.5"
+      memory: "512Mi"
+    requests:
+      cpu: "0.2"
+      memory: "256Mi"
+backend:
+  image: sainsuresh/backend:latest
+  port: 8000
+  resources:
+    limits:
+      cpu: "0.5"
+      memory: "512Mi"
+    requests:
+      cpu: "0.2"
+      memory: "256Mi"
+socket:
+  image: sainsuresh/socket:latest
+  port: 4000
+  resources:
+    limits:
+      cpu: "0.5"
+      memory: "512Mi"
+    requests:
+      cpu: "0.2"
+      memory: "256Mi"
+mongodb:
+  image: sainsuresh/mongodb:latest
+  port: 27017
+  storage: 10Gi

@@ -1,0 +1,26 @@
+namespace: prod
+replicas: 3
+frontend:
+  resources:
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+    requests:
+      cpu: "0.5"
+      memory: "512Mi"
+backend:
+  resources:
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+    requests:
+      cpu: "0.5"
+      memory: "512Mi"
+socket:
+  resources:
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+    requests:
+      cpu: "0.5"
+      memory: "512Mi"
