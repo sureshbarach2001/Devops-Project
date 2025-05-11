@@ -1,3 +1,4 @@
+# File Path : kubernetes/helm/ecommerce/values-dev.yaml
 namespace: dev
 replicas: 1
 frontend:

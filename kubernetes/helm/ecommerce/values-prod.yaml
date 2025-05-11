@@ -1,6 +1,9 @@
+# file Path: kubernetes/helm/ecommerce/values-prod.yaml
 namespace: prod
 replicas: 3
 frontend:
+  image: sainsuresh/frontend:latest
+  port: 3000
   resources:
     limits:
       cpu: "1"
@@ -10,9 +13,18 @@ frontend:
       memory: "512Mi"
 backend:
   version: v1
+  image: sainsuresh/backend:latest
+  port: 8000
+  resources:
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+    requests:
+      cpu: "0.5"
+      memory: "512Mi"
 backendV2:
   version: v2
-  image: sainsuresh/backend:latest 
+  image: sainsuresh/backend:latest
   port: 8000
   resources:
     limits:
@@ -22,6 +34,8 @@ backendV2:
       cpu: "0.5"
       memory: "512Mi"
 socket:
+  image: sainsuresh/socket:latest
+  port: 4000
   resources:
     limits:
       cpu: "1"
@@ -29,3 +43,9 @@ socket:
     requests:
       cpu: "0.5"
       memory: "512Mi"
+mongodb:
+  image: sainsuresh/mongodb:latest
+  port: 27017
+  storage: 10Gi
+ingress:
+  certificateArn: "<your-certificate-arn>" # Replace with ACM ARN

@@ -1,3 +1,4 @@
+# File path : kubernetes/helm/ecommerce/Chart.yaml
 apiVersion: v2
 name: ecommerce
 description: Helm chart for E-commerce Platform

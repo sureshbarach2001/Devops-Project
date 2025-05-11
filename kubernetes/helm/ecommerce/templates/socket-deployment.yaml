@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socket
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: socket
+  template:
+    metadata:
+      labels:
+        app: socket
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+      - name: socket
+        image: {{ .Values.socket.image }}
+        ports:
+        - containerPort: {{ .Values.socket.port }}
+        resources:
+          limits:
+            cpu: {{ .Values.socket.resources.limits.cpu }}
+            memory: {{ .Values.socket.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.socket.resources.requests.cpu }}
+            memory: {{ .Values.socket.resources.requests.memory }}
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.socket.port }}
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.socket.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 5
